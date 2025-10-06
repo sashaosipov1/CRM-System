@@ -1,33 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// components
+import Todos from './components/Todos';
+import NewTodo from './components/NewTodo';
+import StatusCheker from './components/StatusCheker';
 
-function App() {
-  const [count, setCount] = useState(0)
+// api methods
+import getTodos from './api/getTodos';
+
+// interfaces
+import type { ITodo } from './models/todo';
+import type { ITodoInfo } from './models/status';
+
+// hooks
+import { useState, useEffect } from 'react';
+
+const App: React.FC = () => {
+  const [statuses, setStatuses] = useState<ITodoInfo>({
+    all: 0,
+    completed: 0,
+    inWork: 0
+  });
+  const [status, setStatus] = useState('all');
+  const [todos, setTodos] = useState<ITodo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    getTodos(status).then((res) => {
+      setTodos(res.data);
+      setStatuses(res.info!);
+      setIsLoading(false);
+    })
+  }, [isLoading])
+
+  const ChekerClickHandler = (status: string) => {
+    setStatus(status);
+    setIsLoading(true);
+  }
+
+  const passLoading = (status: boolean) => {
+    setIsLoading(status);
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <NewTodo passLoading={passLoading} />
+      <StatusCheker onChekerClick={ChekerClickHandler} statuses={statuses} status={status} />
+      <Todos items={todos} passLoading={passLoading} />
     </>
   )
 }
