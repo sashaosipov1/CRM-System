@@ -10,6 +10,7 @@ import { removeTodo, completeOrChangeTodo } from "../../api/TodosApi";
 
 // interfaces
 import type { TodoRequest } from "../../models/TodoInterfaces";
+import validateTodoTitle from "../../utils/todos";
 
 const TodoItem: React.FC<{ text: string, triggerUpdateData: () => void, todoId: number, isDone: boolean }> = (props) => {
     const [isEdit, setIsEdit] = useState(false);
@@ -56,18 +57,9 @@ const TodoItem: React.FC<{ text: string, triggerUpdateData: () => void, todoId: 
     const todoFormSubmitHandler = (event: React.FormEvent) => {
         event.preventDefault();
 
-        if (changeValue.trim().length === 0) {
-            setError('Это поле не может быть пустым');
-            return;
-        }
-
-        if (changeValue.trim().length < 2) {
-            setError('Минимальная длина текста 2 символа');
-            return;
-        }
-
-        if (changeValue.trim().length > 64) {
-            setError('Максимальная длина текста 64 символа');
+        let errorTitle = validateTodoTitle(changeValue);
+        if (errorTitle) {
+            setError(errorTitle);
             return;
         }
 
