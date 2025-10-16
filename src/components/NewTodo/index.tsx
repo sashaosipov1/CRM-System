@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import validateTodoTitle from "../../utils/todos";
+import { validateTodoTitle } from "../../utils/todos";
 
 // css
 import classes from "./NewTodo.module.css";

@@ -1,4 +1,4 @@
-const validateTodoTitle = (title: string): string => {
+export const validateTodoTitle = (title: string): string => {
     let titleLength = title.trim().length;
     if (titleLength === 0) {
         return ('Это поле не может быть пустым');
@@ -15,4 +15,8 @@ const validateTodoTitle = (title: string): string => {
     return '';
 }
 
-export default validateTodoTitle
+export const getMessageError = (error: unknown): string => {
+    let result = error.message;
+
+    return result;
+}

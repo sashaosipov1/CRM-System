@@ -20,17 +20,31 @@ const TodoPage: React.FC = () => {
   });
   const [status, setStatus] = useState<keyof TodoInfo>('all');
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [allData, setAllData] = useState<MetaResponse<Todo, TodoInfo>>({
+    data: [],
+    info: {
+      all: 0,
+      completed: 0,
+      inWork: 0
+    },
+    meta: {
+      totalAmount: 0
+    }
+  });
 
   useEffect(() => {
     updateAndSetData();
   }, [status])
 
   const updateAndSetData = () => {
-    getTodos(status).then((res: MetaResponse<Todo, TodoInfo>) => {
+    getTodos(status, allData).then((res: MetaResponse<Todo, TodoInfo>) => {
       if (!res.info) { return; }
 
-      setTodos(res.data);
-      setStatuses(res.info);
+      setAllData(res);
+
+      if (!allData.info) { return; }
+      setTodos(allData.data);
+      setStatuses(allData.info);
     })
   }
 
@@ -38,7 +52,7 @@ const TodoPage: React.FC = () => {
     <>
       <NewTodo onTodoAdded={updateAndSetData} />
       <StatusChecker onCheckerClick={setStatus} statuses={statuses} status={status} />
-      <Todos items={todos} triggerUpdateData={updateAndSetData} />
+      <Todos items={todos} onUpdate={updateAndSetData} />
     </>
   )
 }

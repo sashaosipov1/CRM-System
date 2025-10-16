@@ -1,4 +1,5 @@
 import type { MetaResponse, TodoInfo, Todo, TodoRequest } from '../models/TodoInterfaces';
+import { getMessageError } from '../utils/todos';
 
 export async function addTodo(todo: TodoRequest): Promise<void> {
     try {
@@ -9,9 +10,8 @@ export async function addTodo(todo: TodoRequest): Promise<void> {
             },
             body: JSON.stringify(todo)
         })
-    } catch (error: any) {
-        alert(error.message);
-        throw new Error(error.message);
+    } catch (error: unknown) {
+        throw new Error(getMessageError(error));
     }
 }
 
@@ -24,9 +24,8 @@ export async function completeOrChangeTodo(todo: TodoRequest, todoId: number): P
             },
             body: JSON.stringify(todo)
         })
-    } catch (error: any) {
-        alert(error.message);
-        throw new Error(error.message);
+    } catch (error: unknown) {
+        throw new Error(getMessageError(error));
     }
 }
 
@@ -38,25 +37,12 @@ export async function removeTodo(todoId: number): Promise<void> {
                 'Content-Type': 'application/json;charset=utf-8'
             }
         })
-    } catch (error: any) {
-        alert(error.message);
-        throw new Error(error.message);
+    } catch (error: unknown) {
+        throw new Error(getMessageError(error));
     }
 }
 
-export async function getTodos(status: keyof TodoInfo): Promise<MetaResponse<Todo, TodoInfo>> {
-    let result: MetaResponse<Todo, TodoInfo> = {
-        data: [],
-        info: {
-            all: 0,
-            completed: 0,
-            inWork: 0
-        },
-        meta: {
-            totalAmount: 0
-        }
-    };
-
+export async function getTodos(status: keyof TodoInfo, result: MetaResponse<Todo, TodoInfo>): Promise<MetaResponse<Todo, TodoInfo>> {
     try {
         await fetch(`https://easydev.club/api/v1/todos?filter=${status}`)
             .then((response) => response)  // response headers
@@ -64,10 +50,8 @@ export async function getTodos(status: keyof TodoInfo): Promise<MetaResponse<Tod
             .then(res => {
                 result = res;
             })
-    } catch (error: any) {
-        alert(error.message);
-        throw new Error(error.message);
-        
+    } catch (error: unknown) {
+        throw new Error(getMessageError(error));
     }
 
     return result;

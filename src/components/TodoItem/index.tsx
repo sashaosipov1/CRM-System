@@ -10,9 +10,9 @@ import { removeTodo, completeOrChangeTodo } from "../../api/TodosApi";
 
 // interfaces
 import type { TodoRequest } from "../../models/TodoInterfaces";
-import validateTodoTitle from "../../utils/todos";
+import { validateTodoTitle } from "../../utils/todos";
 
-const TodoItem: React.FC<{ text: string, triggerUpdateData: () => void, todoId: number, isDone: boolean }> = (props) => {
+const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, isDone: boolean }> = (props) => {
     const [isEdit, setIsEdit] = useState(false);
     const [changeValue, setChangeValue] = useState('');
     const [error, setError] = useState('');
@@ -23,7 +23,7 @@ const TodoItem: React.FC<{ text: string, triggerUpdateData: () => void, todoId: 
 
     const removeTodoItem = (todoId: number) => {
         removeTodo(todoId).then(() => {
-            props.triggerUpdateData();
+            props.onUpdate();
         });
     }
 
@@ -33,7 +33,7 @@ const TodoItem: React.FC<{ text: string, triggerUpdateData: () => void, todoId: 
         };
 
         completeOrChangeTodo(newTodos, todoId).then(() => {
-            props.triggerUpdateData();
+            props.onUpdate();
         });
     }
 
@@ -50,7 +50,7 @@ const TodoItem: React.FC<{ text: string, triggerUpdateData: () => void, todoId: 
         };
 
         completeOrChangeTodo(newTodos, todoId).then(() => {
-            props.triggerUpdateData();
+            props.onUpdate();
         });
     }
 
