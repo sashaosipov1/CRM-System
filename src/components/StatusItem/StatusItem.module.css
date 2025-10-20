@@ -1,0 +1,11 @@
+.statusItem {
+    display: flex;
+    column-gap: 10px;
+    padding: 5px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.isActive {
+    background-color: #ebb002;
+}

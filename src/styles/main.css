@@ -1,0 +1,16 @@
+html {
+    background-color: antiquewhite;
+}
+
+body {
+    margin: auto;
+}
+
+div#root {
+    width: fit-content;
+    margin: auto;
+    background-color: cornsilk;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+}
