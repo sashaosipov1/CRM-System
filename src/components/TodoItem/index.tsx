@@ -1,21 +1,22 @@
-import { useState } from "react";
-import type React from "react";
+import React, { useState } from 'react';
+import { Button, List, Form, Input } from 'antd';
+import '@ant-design/v5-patch-for-react-19';
 
-// css
+type LayoutType = Parameters<typeof Form>[0]['layout'];
+
 import classes from "./TodoItem.module.css";
 import 'font-awesome/css/font-awesome.min.css';
 
-// api methods
 import { removeTodo, completeOrChangeTodo } from "../../api/TodosApi";
 
-// interfaces
 import type { TodoRequest } from "../../models/TodoInterfaces";
-import { validateTodoTitle } from "../../utils/todos";
+import { getMessageError } from '../../utils/todos';
 
 const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, isDone: boolean }> = (props) => {
     const [isEdit, setIsEdit] = useState(false);
-    const [changeValue, setChangeValue] = useState('');
-    const [error, setError] = useState('');
+    const [form] = Form.useForm();
+    const [formLayout, setFormLayout] = useState<LayoutType>('inline');
+    const todoName = Form.useWatch('todoName', form);
 
     const startEditTodo = () => {
         setIsEdit(true);
@@ -24,6 +25,8 @@ const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, i
     const removeTodoItem = (todoId: number) => {
         removeTodo(todoId).then(() => {
             props.onUpdate();
+        }).catch((error) => {
+            alert(getMessageError(error))
         });
     }
 
@@ -34,12 +37,13 @@ const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, i
 
         completeOrChangeTodo(newTodos, todoId).then(() => {
             props.onUpdate();
+        }).catch((error) => {
+            alert(getMessageError(error))
         });
     }
 
     const skipChangesAndEndEditTodo = () => {
-        setChangeValue('');
-        setError('');
+        form.resetFields();
         setIsEdit(false);
     }
 
@@ -51,42 +55,76 @@ const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, i
 
         completeOrChangeTodo(newTodos, todoId).then(() => {
             props.onUpdate();
+        }).catch((error) => {
+            alert(getMessageError(error))
         });
     }
 
-    const todoFormSubmitHandler = (event: React.FormEvent) => {
-        event.preventDefault();
-
-        let errorTitle = validateTodoTitle(changeValue);
-        if (errorTitle) {
-            setError(errorTitle);
-            return;
-        }
-
-        saveTodoChanges(props.isDone, changeValue, props.todoId);
+    const todoFormSubmitHandler = () => {
+        saveTodoChanges(props.isDone, todoName, props.todoId);
         skipChangesAndEndEditTodo();
     }
 
+    const onFormLayoutChange = ({ layout }: { layout: LayoutType }) => {
+        setFormLayout(layout);
+    };
+
     return (
-        !isEdit ? <li className={classes.item}>
-            <div className={classes.fs_20} onClick={makeCompletedTodoItem.bind(null, !props.isDone, props.todoId)}>{props.isDone ? <i className="fa fa-check-square-o"></i> : <i className="fa fa-square-o"></i>}</div>
-            <div className={`${classes.options} ${classes.options2}`}>
-                <div className={props.isDone ? classes.text_done : classes.text}>{props.text}</div>
-            </div>
-            <div className={classes.options}>
-                <div className={`${classes.fs_20} ${classes.edit}`} onClick={startEditTodo}><i className="fa fa-pencil-square-o"></i></div>
-                <div className={`${classes.fs_20} ${classes.trash}`} onClick={removeTodoItem.bind(null, props.todoId)}><i className="fa fa-trash"></i></div>
-            </div>
-        </li> : <li className={classes.item}>
-            <form onSubmit={todoFormSubmitHandler} className={classes.editForm}>
-                <input type="text" value={changeValue} onChange={(event) => setChangeValue(event.target.value)} />
-                <label className={classes.error_message}>{error}</label>
-                <div className={classes.options}>
-                    <button type="submit">Сохранить</button>
-                    <button type="button" onClick={skipChangesAndEndEditTodo}>Отмена</button>
+        !isEdit ? <List.Item>
+            <div className={classes.item}>
+                <div className={classes.fs_20} onClick={makeCompletedTodoItem.bind(null, !props.isDone, props.todoId)}>{props.isDone ? <i className="fa fa-check-square-o"></i> : <i className="fa fa-square-o"></i>}</div>
+                <div className={`${classes.options} ${classes.options2}`}>
+                    <div className={props.isDone ? classes.text_done : classes.text}>{props.text}</div>
                 </div>
-            </form>
-        </li>
+                <div className={classes.options}>
+                    <div className={`${classes.fs_20} ${classes.edit}`} onClick={startEditTodo}><i className="fa fa-pencil-square-o"></i></div>
+                    <div className={`${classes.fs_20} ${classes.trash}`} onClick={removeTodoItem.bind(null, props.todoId)}><i className="fa fa-trash"></i></div>
+                </div>
+            </div>
+        </List.Item> : <List.Item>
+            <div className={classes.item}>
+                <Form
+                    layout='inline'
+                    form={form}
+                    initialValues={{ layout: formLayout }}
+                    onValuesChange={onFormLayoutChange}
+                    onFinish={todoFormSubmitHandler}
+                >
+                    <Form.Item
+                        label="Todos name"
+                        name='todoName'
+                        initialValue={``}
+                        rules={[
+                            {
+                                validator(_, value) {
+                                    let titleLength = value.trim().length;
+                                    if (titleLength === 0) {
+                                        return Promise.reject(new Error('Это поле не может быть пустым!'));
+                                    }
+
+                                    if (titleLength < 2) {
+                                        return Promise.reject(new Error('Минимальная длина текста 2 символа!'));
+                                    }
+
+                                    if (titleLength > 64) {
+                                        return Promise.reject(new Error('Максимальная длина текста 64 символа!'));
+                                    }
+
+                                    return Promise.resolve();
+                                },
+                            },
+                        ]}>
+                        <Input placeholder="Todos placeholder" type="text" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">Сохранить</Button>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="default" htmlType="button" onClick={skipChangesAndEndEditTodo}>Отмена</Button>
+                    </Form.Item>
+                </Form>
+            </div>
+        </List.Item>
     )
 }
 

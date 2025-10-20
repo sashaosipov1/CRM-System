@@ -1,29 +1,31 @@
-import StatusItem from "../StatusItem";
 import type { TodoInfo } from "../../models/TodoInterfaces";
 import { statusMapping } from "../../models/statusMapping";
-import classes from "./StatusCheker.module.css";
+import { Tabs } from "antd";
+import type { TabsProps } from 'antd';
 
 const StatusChecker: React.FC<{ onCheckerClick: (status: keyof TodoInfo) => void, statuses: TodoInfo, status: keyof TodoInfo }> = (props) => {
-    return (
-        <ul className={classes.statusCheker}>
-            {
-                Object.entries(props.statuses).map(([key, value]) => {
-                    const typedKey = key as keyof TodoInfo;
-                    const typedValue = value as number;
+    const items: TabsProps['items'] = [];
 
-                    return (
-                        <StatusItem
-                            onCheckerClick={props.onCheckerClick}
-                            key={typedKey}
-                            title={statusMapping[typedKey]}
-                            value={typedValue}
-                            status={typedKey}
-                            isActive={props.status === typedKey}
-                        />
-                    );
-                })
-            }
-        </ul>
+    const onTabClick = (activeKey: string) => {
+        const status = activeKey as keyof TodoInfo;
+        props.onCheckerClick(status);
+        console.log(status);
+    };
+
+    Object.entries(props.statuses).map(([key, value]) => {
+        const typedKey = key as keyof TodoInfo;
+        const typedValue = value as number;
+
+        let obj = {
+            key: typedKey,
+            label: `${statusMapping[typedKey]} (${typedValue})`,
+        }
+
+        items.push(obj);
+    })
+
+    return (
+        <Tabs defaultActiveKey="1" items={items} onTabClick={onTabClick} />
     )
 }
 

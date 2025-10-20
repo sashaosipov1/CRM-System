@@ -1,19 +1,19 @@
-import React, { useRef, useState } from "react";
-import { validateTodoTitle } from "../../utils/todos";
+import React, { useState } from "react";
 
-// css
-import classes from "./NewTodo.module.css";
+type LayoutType = Parameters<typeof Form>[0]['layout'];
 
 // interfaces
 import type { TodoRequest } from "../../models/TodoInterfaces";
 
 // components
 import { addTodo } from "../../api/TodosApi";
+import { Button, Form, Input } from "antd";
+import { getMessageError } from "../../utils/todos";
 
 const NewTodo: React.FC<{ onTodoAdded: () => void }> = (props) => {
-    const todoInputRef = useRef<HTMLInputElement>(null);
-    const [error, setError] = useState('');
-
+    const [form] = Form.useForm();
+    const [formLayout, setFormLayout] = useState<LayoutType>('inline');
+    const todoName = Form.useWatch('todoName', form);
 
     const addTodoHandler = (text: string) => {
         const newTodos: TodoRequest = {
@@ -23,33 +23,57 @@ const NewTodo: React.FC<{ onTodoAdded: () => void }> = (props) => {
 
         addTodo(newTodos).then(() => {
             props.onTodoAdded();
+        }).catch((error) => {
+            alert(getMessageError(error))
         });
     }
 
-    const submitHandler = (event: React.FormEvent) => {
-        event.preventDefault();
+    const onFormLayoutChange = ({ layout }: { layout: LayoutType }) => {
+        setFormLayout(layout);
+    };
 
-        if (!todoInputRef.current) { return; }
-        const enteredText = todoInputRef.current.value;
-
-        let errorTitle = validateTodoTitle(enteredText);
-        if (errorTitle) {
-            setError(errorTitle);
-            return;
-        }
-
-        addTodoHandler(enteredText);
-        setError('');
-        todoInputRef.current.value = '';
+    const submitHandler = () => {
+        addTodoHandler(todoName);
     }
 
     return (
-        <form onSubmit={submitHandler} className={classes.form}>
-            <label>Todo text</label>
-            <input type="text" ref={todoInputRef} />
-            <label className={classes.error_message}>{error}</label>
-            <button>Add</button>
-        </form>
+        <Form
+            layout='inline'
+            form={form}
+            initialValues={{ layout: formLayout }}
+            onValuesChange={onFormLayoutChange}
+            onFinish={submitHandler}
+        >
+            <Form.Item
+                label="Todos name"
+                name='todoName'
+                initialValue={``}
+                rules={[
+                    {
+                        validator(_, value) {
+                            let titleLength = value.trim().length;
+                            if (titleLength === 0) {
+                                return Promise.reject(new Error('Это поле не может быть пустым!'));
+                            }
+
+                            if (titleLength < 2) {
+                                return Promise.reject(new Error('Минимальная длина текста 2 символа!'));
+                            }
+
+                            if (titleLength > 64) {
+                                return Promise.reject(new Error('Максимальная длина текста 64 символа!'));
+                            }
+
+                            return Promise.resolve();
+                        },
+                    },
+                ]}>
+                <Input placeholder="Todos placeholder" type="text" />
+            </Form.Item>
+            <Form.Item>
+                <Button type="primary" htmlType="submit">Сохранить</Button>
+            </Form.Item>
+        </Form>
     )
 }
 
