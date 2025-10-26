@@ -10,7 +10,7 @@ const App: React.FC = () => {
       <NavigationMenu>
         <Routes>
           <Route path="/" element={<TodoPage />} />
-          <Route path="/account" element={<AccountPage />} />
+          <Route path="/profile" element={<AccountPage />} />
           {/* Catch-all route for 404 pages */}
           <Route path="*" element={<h1>404 Page Not Found</h1>} />
         </Routes>

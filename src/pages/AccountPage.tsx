@@ -3,7 +3,8 @@ const accountPage: React.FC = () => {
 
   return (
     <>
-      <h1>Account</h1>
+      <h1>Profile</h1>
+      <h2>Hello</h2>
     </>
   )
 }

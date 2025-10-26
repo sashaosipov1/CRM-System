@@ -23,8 +23,16 @@ const TodoPage: React.FC = () => {
   const [status, setStatus] = useState<keyof TodoInfo>('all');
   const [todos, setTodos] = useState<Todo[]>([]);
 
+  const refreshTime = 10 * 1000;
+
   useEffect(() => {
     updateAndSetData();
+  }, [status])
+
+  useEffect(() => {
+    const updateInterval = setInterval(updateAndSetData, refreshTime);
+
+    return () => clearInterval(updateInterval)
   }, [status])
 
   const updateAndSetData = () => {
