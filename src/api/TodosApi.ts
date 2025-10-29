@@ -5,7 +5,7 @@ import { getMessageError } from '../utils/todos';
 export async function addTodo(todo: TodoRequest): Promise<void> {
     try {
         await axios.post(`https://easydev.club/api/v1/todos`, JSON.stringify(todo));
-    } catch (error: any) {
+    } catch (error: unknown) {
         throw new Error(getMessageError(error));
     }
 }
@@ -13,7 +13,7 @@ export async function addTodo(todo: TodoRequest): Promise<void> {
 export async function completeOrChangeTodo(todo: TodoRequest, todoId: number): Promise<void> {
     try {
         await axios.put(`https://easydev.club/api/v1/todos/${todoId}`, JSON.stringify(todo));
-    } catch (error: any) {
+    } catch (error: unknown) {
         throw new Error(getMessageError(error));
     }
 }
@@ -21,7 +21,7 @@ export async function completeOrChangeTodo(todo: TodoRequest, todoId: number): P
 export async function removeTodo(todoId: number): Promise<void> {
     try {
         await axios.delete(`https://easydev.club/api/v1/todos/${todoId}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
         throw new Error(getMessageError(error));
     }
 }

@@ -13,7 +13,7 @@ import type { TodoRequest } from "../../models/TodoInterfaces";
 import { getMessageError } from '../../utils/todos';
 
 const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, isDone: boolean }> = (props) => {
-    const [isEdit, setIsEdit] = useState(false);
+    const [isEdit, setIsEdit] = useState<boolean>(false);
     const [form] = Form.useForm();
     const [formLayout, setFormLayout] = useState<LayoutType>('inline');
     const todoName = Form.useWatch('todoName', form);

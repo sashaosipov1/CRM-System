@@ -21,7 +21,7 @@ const items = [
 ];
 
 const navigationMenu: React.FC<{ children: React.ReactNode }> = (props) => {
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState<boolean>(false);
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
