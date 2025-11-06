@@ -3,30 +3,47 @@ import { statusMapping } from "../../models/statusMapping";
 import { Tabs } from "antd";
 import type { TabsProps } from 'antd';
 
-const StatusChecker: React.FC<{ onCheckerClick: (status: keyof TodoInfo) => void, statuses: TodoInfo, status: keyof TodoInfo }> = (props) => {
+function isTodoStatusKey(key: string): key is keyof TodoInfo {
+    const validKeys = Object.keys(statusMapping) as Array<keyof TodoInfo>;
+    return validKeys.includes(key as keyof TodoInfo);
+}
+
+const StatusChecker: React.FC<{
+    onCheckerClick: (status: keyof TodoInfo) => void;
+    statuses: TodoInfo;
+    status: keyof TodoInfo;
+}> = (props) => {
     const items: TabsProps['items'] = [];
 
     const onTabClick = (activeKey: string) => {
-        const status = activeKey as keyof TodoInfo;
-        props.onCheckerClick(status);
-        console.log(status);
-    };
-
-    Object.entries(props.statuses).map(([key, value]) => {
-        const typedKey = key as keyof TodoInfo;
-        const typedValue = value as number;
-
-        let obj = {
-            key: typedKey,
-            label: `${statusMapping[typedKey]} (${typedValue})`,
+        if (!isTodoStatusKey(activeKey)) {
+            throw new Error('status error');
         }
 
-        items.push(obj);
-    })
+        props.onCheckerClick(activeKey);
+        console.log('Выбран статус:', activeKey);
+    };
+
+    Object.entries(props.statuses).forEach(([key, value]) => {
+        if (!isTodoStatusKey(key)) {
+            throw new Error('status error');
+        }
+
+        const label = `${statusMapping[key]} (${value})`;
+
+        items.push({
+            key,
+            label,
+        });
+    });
 
     return (
-        <Tabs defaultActiveKey="1" items={items} onTabClick={onTabClick} />
-    )
-}
+        <Tabs
+            defaultActiveKey={props.status}
+            items={items}
+            onTabClick={onTabClick}
+        />
+    );
+};
 
 export default StatusChecker;

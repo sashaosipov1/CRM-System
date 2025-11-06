@@ -13,6 +13,7 @@ import type { Todo, TodoInfo, MetaResponse } from '../models/TodoInterfaces';
 import { useState, useEffect } from 'react';
 
 import { getMessageError } from '../utils/todos';
+import { REFRESH_TIME } from '../constants';
 
 const TodoPage: React.FC = () => {
   const [statuses, setStatuses] = useState<TodoInfo>({
@@ -23,14 +24,12 @@ const TodoPage: React.FC = () => {
   const [status, setStatus] = useState<keyof TodoInfo>('all');
   const [todos, setTodos] = useState<Todo[]>([]);
 
-  const refreshTime = 10 * 1000;
-
   useEffect(() => {
     updateAndSetData();
   }, [status])
 
   useEffect(() => {
-    const updateInterval = setInterval(updateAndSetData, refreshTime);
+    const updateInterval = setInterval(updateAndSetData, REFRESH_TIME);
 
     return () => clearInterval(updateInterval)
   }, [status])

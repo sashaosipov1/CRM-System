@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Button, List, Form, Input } from 'antd';
 import '@ant-design/v5-patch-for-react-19';
 
-type LayoutType = Parameters<typeof Form>[0]['layout'];
-
 import classes from "./TodoItem.module.css";
 import 'font-awesome/css/font-awesome.min.css';
 
@@ -15,7 +13,6 @@ import { getMessageError } from '../../utils/todos';
 const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, isDone: boolean }> = (props) => {
     const [isEdit, setIsEdit] = useState<boolean>(false);
     const [form] = Form.useForm();
-    const [formLayout, setFormLayout] = useState<LayoutType>('inline');
     const todoName = Form.useWatch('todoName', form);
 
     const startEditTodo = () => {
@@ -65,10 +62,6 @@ const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, i
         skipChangesAndEndEditTodo();
     }
 
-    const onFormLayoutChange = ({ layout }: { layout: LayoutType }) => {
-        setFormLayout(layout);
-    };
-
     return (
         !isEdit ? <List.Item>
             <div className={classes.item}>
@@ -86,8 +79,6 @@ const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, i
                 <Form
                     layout='inline'
                     form={form}
-                    initialValues={{ layout: formLayout }}
-                    onValuesChange={onFormLayoutChange}
                     onFinish={todoFormSubmitHandler}
                 >
                     <Form.Item
@@ -96,22 +87,17 @@ const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, i
                         initialValue={``}
                         rules={[
                             {
-                                validator(_, value) {
-                                    let titleLength = value.trim().length;
-                                    if (titleLength === 0) {
-                                        return Promise.reject(new Error('Это поле не может быть пустым!'));
-                                    }
-
-                                    if (titleLength < 2) {
-                                        return Promise.reject(new Error('Минимальная длина текста 2 символа!'));
-                                    }
-
-                                    if (titleLength > 64) {
-                                        return Promise.reject(new Error('Максимальная длина текста 64 символа!'));
-                                    }
-
-                                    return Promise.resolve();
-                                },
+                                required: true,
+                                whitespace: true,
+                                message: 'Это поле не может быть пустым!',
+                            },
+                            {
+                                min: 2,
+                                message: 'Минимальная длина текста 2 символа!',
+                            },
+                            {
+                                max: 64,
+                                message: 'Максимальная длина текста 64 символа!',
                             },
                         ]}>
                         <Input placeholder="Todos placeholder" type="text" />

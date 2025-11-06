@@ -27,13 +27,8 @@ const navigationMenu: React.FC<{ children: React.ReactNode }> = (props) => {
     } = theme.useToken();
     const location = useLocation();
     const currentItem = items.find(item => item.path === location.pathname);
-    let currentItemKey = ``;
-    if (currentItem) {
-        currentItemKey = currentItem.key;
-    }
-    console.log(currentItemKey);
 
-    const [selectedKey, setSelectedKey] = useState<string>(`${currentItemKey}`);
+    const [selectedKey, setSelectedKey] = useState<string>(currentItem?.key ?? '1');
     console.log(selectedKey);
     
 
