@@ -8,12 +8,14 @@ import { addTodo } from "../../api/TodosApi";
 import { Button, Form, Input } from "antd";
 import { getMessageError } from "../../utils/todos";
 
+import { TODO_TITLE_MIN_LENGTH, TODO_TITLE_MAX_LENGTH } from "../../constants";
+
 const NewTodo: React.FC<{ onTodoAdded: () => void }> = (props) => {
     const [form] = Form.useForm();
 
-    const submitHandler = (values: Record<string, any>) => {
+    const submitHandler = (values: TodoRequest) => {
         const newTodos: TodoRequest = {
-            title: values.todoName,
+            title: values.title,
             isDone: false
         };
 
@@ -33,7 +35,7 @@ const NewTodo: React.FC<{ onTodoAdded: () => void }> = (props) => {
         >
             <Form.Item
                 label="Todos name"
-                name='todoName'
+                name='title'
                 initialValue={``}
                 rules={[
                     {
@@ -42,12 +44,12 @@ const NewTodo: React.FC<{ onTodoAdded: () => void }> = (props) => {
                         message: 'Это поле не может быть пустым!',
                     },
                     {
-                        min: 2,
-                        message: 'Минимальная длина текста 2 символа!',
+                        min: TODO_TITLE_MIN_LENGTH,
+                        message: `Минимальная длина текста ${TODO_TITLE_MIN_LENGTH} символа!`,
                     },
                     {
-                        max: 64,
-                        message: 'Максимальная длина текста 64 символа!',
+                        max: TODO_TITLE_MAX_LENGTH,
+                        message: `Максимальная длина текста ${TODO_TITLE_MAX_LENGTH} символа!`,
                     },
                 ]}>
                 <Input placeholder="Todos placeholder" type="text" />

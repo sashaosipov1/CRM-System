@@ -1,32 +1,32 @@
-import type { MetaResponse, TodoInfo, Todo, TodoRequest } from '../models/TodoInterfaces';
+import type { MetaResponse, TodoInfo, Todo, TodoRequest, TodoInfoKey } from '../models/TodoInterfaces';
 import { getMessageError } from '../utils/todos';
 import apiInstance from './axiosInstance';
 
-export function addTodo(todo: TodoRequest): Promise<void> {
-    return apiInstance.post('todos', todo)
-        .then(() => void 0)
+export function addTodo(todo: TodoRequest): Promise<Todo> {
+    return apiInstance.post<Todo>('todos', todo)
+        .then((response) => response.data)
         .catch((error: unknown) => {
             throw new Error(getMessageError(error));
         });
 }
 
-export function completeOrChangeTodo(todo: TodoRequest, todoId: number): Promise<void> {
-    return apiInstance.put(`todos/${todoId}`, todo)
-        .then(() => void 0)
+export function updateTodo(todo: TodoRequest, todoId: number): Promise<Todo> {
+    return apiInstance.put<Todo>(`todos/${todoId}`, todo)
+        .then(response => response.data)
         .catch((error: unknown) => {
             throw new Error(getMessageError(error));
         });
 }
 
-export function removeTodo(todoId: number): Promise<void> {
-    return apiInstance.delete(`todos/${todoId}`)
-        .then(() => void 0)
+export function removeTodo(todoId: number): Promise<Todo> {
+    return apiInstance.delete<Todo>(`todos/${todoId}`)
+        .then(response => response.data)
         .catch((error: unknown) => {
             throw new Error(getMessageError(error));
         });
 }
 
-export function getTodos(status: keyof TodoInfo): Promise<MetaResponse<Todo, TodoInfo>> {
+export function getTodos(status: TodoInfoKey): Promise<MetaResponse<Todo, TodoInfo>> {
     return apiInstance.get('todos', {
         params: {
             filter: status
@@ -34,7 +34,6 @@ export function getTodos(status: keyof TodoInfo): Promise<MetaResponse<Todo, Tod
     })
         .then(response => {
             const result: MetaResponse<Todo, TodoInfo> = response.data;
-            console.log(result);
             return result;
         })
         .catch((error: unknown) => {

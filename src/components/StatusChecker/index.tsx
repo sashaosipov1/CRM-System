@@ -1,17 +1,16 @@
-import type { TodoInfo } from "../../models/TodoInterfaces";
+import type { TodoInfo, TodoInfoKey } from "../../models/TodoInterfaces";
 import { statusMapping } from "../../models/statusMapping";
 import { Tabs } from "antd";
 import type { TabsProps } from 'antd';
 
-function isTodoStatusKey(key: string): key is keyof TodoInfo {
-    const validKeys = Object.keys(statusMapping) as Array<keyof TodoInfo>;
-    return validKeys.includes(key as keyof TodoInfo);
+function isTodoStatusKey(key: string): key is TodoInfoKey {
+    return Object.keys(statusMapping).includes(key);
 }
 
 const StatusChecker: React.FC<{
-    onCheckerClick: (status: keyof TodoInfo) => void;
+    onCheckerClick: (status: TodoInfoKey) => void;
     statuses: TodoInfo;
-    status: keyof TodoInfo;
+    status: TodoInfoKey;
 }> = (props) => {
     const items: TabsProps['items'] = [];
 
@@ -21,7 +20,6 @@ const StatusChecker: React.FC<{
         }
 
         props.onCheckerClick(activeKey);
-        console.log('Выбран статус:', activeKey);
     };
 
     Object.entries(props.statuses).forEach(([key, value]) => {

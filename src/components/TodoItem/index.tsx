@@ -5,10 +5,11 @@ import '@ant-design/v5-patch-for-react-19';
 import classes from "./TodoItem.module.css";
 import 'font-awesome/css/font-awesome.min.css';
 
-import { removeTodo, completeOrChangeTodo } from "../../api/TodosApi";
+import { removeTodo, updateTodo } from "../../api/TodosApi";
 
 import type { TodoRequest } from "../../models/TodoInterfaces";
 import { getMessageError } from '../../utils/todos';
+import { TODO_TITLE_MAX_LENGTH, TODO_TITLE_MIN_LENGTH } from '../../constants';
 
 const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, isDone: boolean }> = (props) => {
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -32,7 +33,7 @@ const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, i
             isDone: done
         };
 
-        completeOrChangeTodo(newTodos, todoId).then(() => {
+        updateTodo(newTodos, todoId).then(() => {
             props.onUpdate();
         }).catch((error) => {
             alert(getMessageError(error))
@@ -50,7 +51,7 @@ const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, i
             isDone: done
         };
 
-        completeOrChangeTodo(newTodos, todoId).then(() => {
+        updateTodo(newTodos, todoId).then(() => {
             props.onUpdate();
         }).catch((error) => {
             alert(getMessageError(error))
@@ -92,12 +93,12 @@ const TodoItem: React.FC<{ text: string, onUpdate: () => void, todoId: number, i
                                 message: 'Это поле не может быть пустым!',
                             },
                             {
-                                min: 2,
-                                message: 'Минимальная длина текста 2 символа!',
+                                min: TODO_TITLE_MIN_LENGTH,
+                                message: `Минимальная длина текста ${TODO_TITLE_MIN_LENGTH} символа!`,
                             },
                             {
-                                max: 64,
-                                message: 'Максимальная длина текста 64 символа!',
+                                max: TODO_TITLE_MAX_LENGTH,
+                                message: `Максимальная длина текста ${TODO_TITLE_MAX_LENGTH} символа!`,
                             },
                         ]}>
                         <Input placeholder="Todos placeholder" type="text" />

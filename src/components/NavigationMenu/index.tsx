@@ -29,8 +29,6 @@ const navigationMenu: React.FC<{ children: React.ReactNode }> = (props) => {
     const currentItem = items.find(item => item.path === location.pathname);
 
     const [selectedKey, setSelectedKey] = useState<string>(currentItem?.key ?? '1');
-    console.log(selectedKey);
-    
 
     useEffect(() => {
         const currentItem = items.find(item => item.path === location.pathname);
