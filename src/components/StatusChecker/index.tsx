@@ -1,30 +1,47 @@
-import StatusItem from "../StatusItem";
-import type { TodoInfo } from "../../models/TodoInterfaces";
+import type { TodoInfo, TodoInfoKey } from "../../models/TodoInterfaces";
 import { statusMapping } from "../../models/statusMapping";
-import classes from "./StatusCheker.module.css";
+import { Tabs } from "antd";
+import type { TabsProps } from 'antd';
 
-const StatusChecker: React.FC<{ onCheckerClick: (status: keyof TodoInfo) => void, statuses: TodoInfo, status: keyof TodoInfo }> = (props) => {
-    return (
-        <ul className={classes.statusCheker}>
-            {
-                Object.entries(props.statuses).map(([key, value]) => {
-                    const typedKey = key as keyof TodoInfo;
-                    const typedValue = value as number;
-
-                    return (
-                        <StatusItem
-                            onCheckerClick={props.onCheckerClick}
-                            key={typedKey}
-                            title={statusMapping[typedKey]}
-                            value={typedValue}
-                            status={typedKey}
-                            isActive={props.status === typedKey}
-                        />
-                    );
-                })
-            }
-        </ul>
-    )
+function isTodoStatusKey(key: string): key is TodoInfoKey {
+    return Object.keys(statusMapping).includes(key);
 }
+
+const StatusChecker: React.FC<{
+    onCheckerClick: (status: TodoInfoKey) => void;
+    statuses: TodoInfo;
+    status: TodoInfoKey;
+}> = (props) => {
+    const items: TabsProps['items'] = [];
+
+    const onTabClick = (activeKey: string) => {
+        if (!isTodoStatusKey(activeKey)) {
+            throw new Error('status error');
+        }
+
+        props.onCheckerClick(activeKey);
+    };
+
+    Object.entries(props.statuses).forEach(([key, value]) => {
+        if (!isTodoStatusKey(key)) {
+            throw new Error('status error');
+        }
+
+        const label = `${statusMapping[key]} (${value})`;
+
+        items.push({
+            key,
+            label,
+        });
+    });
+
+    return (
+        <Tabs
+            defaultActiveKey={props.status}
+            items={items}
+            onTabClick={onTabClick}
+        />
+    );
+};
 
 export default StatusChecker;

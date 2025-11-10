@@ -12,6 +12,9 @@ import type { Todo, TodoInfo, MetaResponse } from '../models/TodoInterfaces';
 // hooks
 import { useState, useEffect } from 'react';
 
+import { getMessageError } from '../utils/todos';
+import { REFRESH_TIME } from '../constants';
+
 const TodoPage: React.FC = () => {
   const [statuses, setStatuses] = useState<TodoInfo>({
     all: 0,
@@ -20,31 +23,25 @@ const TodoPage: React.FC = () => {
   });
   const [status, setStatus] = useState<keyof TodoInfo>('all');
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [allData, setAllData] = useState<MetaResponse<Todo, TodoInfo>>({
-    data: [],
-    info: {
-      all: 0,
-      completed: 0,
-      inWork: 0
-    },
-    meta: {
-      totalAmount: 0
-    }
-  });
 
   useEffect(() => {
     updateAndSetData();
   }, [status])
 
+  useEffect(() => {
+    const updateInterval = setInterval(updateAndSetData, REFRESH_TIME);
+
+    return () => clearInterval(updateInterval)
+  }, [status])
+
   const updateAndSetData = () => {
-    getTodos(status, allData).then((res: MetaResponse<Todo, TodoInfo>) => {
+    getTodos(status).then((res: MetaResponse<Todo, TodoInfo>) => {
       if (!res.info) { return; }
 
-      setAllData(res);
-
-      if (!allData.info) { return; }
-      setTodos(allData.data);
-      setStatuses(allData.info);
+      setTodos(res.data);
+      setStatuses(res.info);
+    }).catch((error) => {
+      alert(getMessageError(error))
     })
   }
 

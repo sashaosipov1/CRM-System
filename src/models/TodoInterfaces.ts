@@ -20,3 +20,5 @@ export interface TodoInfo {
     completed: number
     inWork: number
 }
+
+export type TodoInfoKey = keyof TodoInfo

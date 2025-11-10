@@ -1,55 +1,63 @@
-import React, { useRef, useState } from "react";
-import { validateTodoTitle } from "../../utils/todos";
-
-// css
-import classes from "./NewTodo.module.css";
+import React from "react";
 
 // interfaces
 import type { TodoRequest } from "../../models/TodoInterfaces";
 
 // components
 import { addTodo } from "../../api/TodosApi";
+import { Button, Form, Input } from "antd";
+import { getMessageError } from "../../utils/todos";
+
+import { TODO_TITLE_MIN_LENGTH, TODO_TITLE_MAX_LENGTH } from "../../constants";
 
 const NewTodo: React.FC<{ onTodoAdded: () => void }> = (props) => {
-    const todoInputRef = useRef<HTMLInputElement>(null);
-    const [error, setError] = useState('');
+    const [form] = Form.useForm();
 
-
-    const addTodoHandler = (text: string) => {
+    const submitHandler = (values: TodoRequest) => {
         const newTodos: TodoRequest = {
-            title: text,
+            title: values.title,
             isDone: false
         };
 
         addTodo(newTodos).then(() => {
             props.onTodoAdded();
+            form.resetFields();
+        }).catch((error) => {
+            alert(getMessageError(error))
         });
     }
 
-    const submitHandler = (event: React.FormEvent) => {
-        event.preventDefault();
-
-        if (!todoInputRef.current) { return; }
-        const enteredText = todoInputRef.current.value;
-
-        let errorTitle = validateTodoTitle(enteredText);
-        if (errorTitle) {
-            setError(errorTitle);
-            return;
-        }
-
-        addTodoHandler(enteredText);
-        setError('');
-        todoInputRef.current.value = '';
-    }
-
     return (
-        <form onSubmit={submitHandler} className={classes.form}>
-            <label>Todo text</label>
-            <input type="text" ref={todoInputRef} />
-            <label className={classes.error_message}>{error}</label>
-            <button>Add</button>
-        </form>
+        <Form
+            layout='inline'
+            onFinish={submitHandler}
+            form={form}
+        >
+            <Form.Item
+                label="Todos name"
+                name='title'
+                initialValue={``}
+                rules={[
+                    {
+                        required: true,
+                        whitespace: true,
+                        message: 'Это поле не может быть пустым!',
+                    },
+                    {
+                        min: TODO_TITLE_MIN_LENGTH,
+                        message: `Минимальная длина текста ${TODO_TITLE_MIN_LENGTH} символа!`,
+                    },
+                    {
+                        max: TODO_TITLE_MAX_LENGTH,
+                        message: `Максимальная длина текста ${TODO_TITLE_MAX_LENGTH} символа!`,
+                    },
+                ]}>
+                <Input placeholder="Todos placeholder" type="text" />
+            </Form.Item>
+            <Form.Item>
+                <Button type="primary" htmlType="submit">Сохранить</Button>
+            </Form.Item>
+        </Form>
     )
 }
 

@@ -1,58 +1,42 @@
-import type { MetaResponse, TodoInfo, Todo, TodoRequest } from '../models/TodoInterfaces';
+import type { MetaResponse, TodoInfo, Todo, TodoRequest, TodoInfoKey } from '../models/TodoInterfaces';
 import { getMessageError } from '../utils/todos';
+import apiInstance from './axiosInstance';
 
-export async function addTodo(todo: TodoRequest): Promise<void> {
-    try {
-        await fetch('https://easydev.club/api/v1/todos', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify(todo)
-        })
-    } catch (error: unknown) {
-        throw new Error(getMessageError(error));
-    }
+export function addTodo(todo: TodoRequest): Promise<Todo> {
+    return apiInstance.post<Todo>('todos', todo)
+        .then((response) => response.data)
+        .catch((error: unknown) => {
+            throw new Error(getMessageError(error));
+        });
 }
 
-export async function completeOrChangeTodo(todo: TodoRequest, todoId: number): Promise<void> {
-    try {
-        await fetch(`https://easydev.club/api/v1/todos/${todoId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-            body: JSON.stringify(todo)
-        })
-    } catch (error: unknown) {
-        throw new Error(getMessageError(error));
-    }
+export function updateTodo(todo: TodoRequest, todoId: number): Promise<Todo> {
+    return apiInstance.put<Todo>(`todos/${todoId}`, todo)
+        .then(response => response.data)
+        .catch((error: unknown) => {
+            throw new Error(getMessageError(error));
+        });
 }
 
-export async function removeTodo(todoId: number): Promise<void> {
-    try {
-        await fetch(`https://easydev.club/api/v1/todos/${todoId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            }
-        })
-    } catch (error: unknown) {
-        throw new Error(getMessageError(error));
-    }
+export function removeTodo(todoId: number): Promise<Todo> {
+    return apiInstance.delete<Todo>(`todos/${todoId}`)
+        .then(response => response.data)
+        .catch((error: unknown) => {
+            throw new Error(getMessageError(error));
+        });
 }
 
-export async function getTodos(status: keyof TodoInfo, result: MetaResponse<Todo, TodoInfo>): Promise<MetaResponse<Todo, TodoInfo>> {
-    try {
-        await fetch(`https://easydev.club/api/v1/todos?filter=${status}`)
-            .then((response) => response)  // response headers
-            .then((res) => res.json())
-            .then(res => {
-                result = res;
-            })
-    } catch (error: unknown) {
-        throw new Error(getMessageError(error));
-    }
-
-    return result;
+export function getTodos(status: TodoInfoKey): Promise<MetaResponse<Todo, TodoInfo>> {
+    return apiInstance.get('todos', {
+        params: {
+            filter: status
+        }
+    })
+        .then(response => {
+            const result: MetaResponse<Todo, TodoInfo> = response.data;
+            return result;
+        })
+        .catch((error: unknown) => {
+            throw new Error(getMessageError(error));
+        });
 }
